@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from data_api.models import WeatherReading
 from predictor.models import Prediction
@@ -8,8 +9,21 @@ from predictor.services import generate_and_save_prediction
 from .serializers import PredictionSerializer, WeatherReadingSerializer
 
 
+def _parse_limit(request, default=50, maximum=200):
+    """Return a safe queryset limit from the request query string."""
+
+    raw_limit = request.GET.get("limit", default)
+    try:
+        limit = int(raw_limit)
+    except (TypeError, ValueError):
+        return None
+    return max(1, min(limit, maximum))
+
+
 @api_view(["GET"])
 def api_root(request):
+    """List the main API and web endpoints."""
+
     return Response(
         {
             "weather_readings": request.build_absolute_uri("weather-readings/"),
@@ -24,9 +38,15 @@ def api_root(request):
 
 @api_view(["GET"])
 def weather_readings(request):
+    """Return recent weather readings, optionally filtered by city."""
+
     city = request.GET.get("city")
-    limit = int(request.GET.get("limit", 50))
-    limit = max(1, min(limit, 200))
+    limit = _parse_limit(request)
+    if limit is None:
+        return Response(
+            {"error": "limit must be a number between 1 and 200"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     readings = WeatherReading.objects.all().order_by("-fetched_at")
     if city:
@@ -38,9 +58,15 @@ def weather_readings(request):
 
 @api_view(["GET"])
 def predictions(request):
+    """Return recent predictions, optionally filtered by city."""
+
     city = request.GET.get("city")
-    limit = int(request.GET.get("limit", 50))
-    limit = max(1, min(limit, 200))
+    limit = _parse_limit(request)
+    if limit is None:
+        return Response(
+            {"error": "limit must be a number between 1 and 200"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     queryset = Prediction.objects.select_related("input_reading").order_by("-predicted_at")
     if city:
@@ -52,7 +78,9 @@ def predictions(request):
 
 @api_view(["POST", "GET"])
 def generate_prediction(request):
+    """Generate, save, and return a new prediction for the selected city."""
+
     city = request.data.get("city") if request.method == "POST" else request.GET.get("city")
     prediction = generate_and_save_prediction(city or "Kigali")
     serializer = PredictionSerializer(prediction)
-    return Response(serializer.data, status=201)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)

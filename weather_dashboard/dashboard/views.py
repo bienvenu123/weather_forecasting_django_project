@@ -5,6 +5,8 @@ from predictor.models import Prediction
 
 
 def home(request):
+    """Render the main dashboard using recent readings and predictions."""
+
     city = request.GET.get("city", "Kigali")
     readings = list(
         WeatherReading.objects.filter(city__iexact=city).order_by("-fetched_at")[:24]

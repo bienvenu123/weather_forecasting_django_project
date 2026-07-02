@@ -21,7 +21,7 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 "Fetched weather and saved prediction: "
-                f"{prediction.predicted_temperature}°C, "
+                f"{prediction.predicted_temperature} C, "
                 f"{prediction.predicted_precipitation}mm at "
                 f"{prediction.predicted_at}"
             )

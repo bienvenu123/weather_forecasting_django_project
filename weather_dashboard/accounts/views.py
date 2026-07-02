@@ -9,6 +9,8 @@ from predictor.models import Prediction
 
 @login_required
 def prediction_history(request):
+    """Display saved predictions for reporting and review."""
+
     city = request.GET.get("city")
     predictions = Prediction.objects.select_related("input_reading").order_by("-predicted_at")
     if city:
@@ -23,6 +25,8 @@ def prediction_history(request):
 
 @login_required
 def export_predictions_csv(request):
+    """Export saved predictions as a CSV file."""
+
     city = request.GET.get("city")
     predictions = Prediction.objects.select_related("input_reading").order_by("-predicted_at")
     if city:

@@ -1,6 +1,9 @@
 from django.db import models
 
+
 class WeatherReading(models.Model):
+    """A single weather reading captured from the OpenWeatherMap API."""
+
     city = models.CharField(max_length=100)
     temperature = models.FloatField()
     feels_like = models.FloatField()
@@ -13,4 +16,4 @@ class WeatherReading(models.Model):
     fetched_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.city} - {self.temperature}°C at {self.fetched_at}"
+        return f"{self.city} - {self.temperature} C at {self.fetched_at}"
