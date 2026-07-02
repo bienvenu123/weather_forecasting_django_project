@@ -3,69 +3,121 @@
 {% block title %}Predictor | Kigali Weather{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <div>
-        <h1 class="mb-1">Generate Prediction</h1>
-        <p class="text-muted mb-0">Predict next weather values from the latest saved reading.</p>
+<section class="page-hero fade-up">
+    <div class="hero-inner d-flex flex-column justify-content-between gap-4">
+        <div>
+            <span class="eyebrow"><i class="bi bi-stars"></i>Machine learning forecast</span>
+            <h1 class="hero-title">Generate Prediction</h1>
+            <p class="hero-copy">Run the latest stored weather reading through the trained models and save a fresh temperature and rainfall forecast.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light btn-icon" href="/"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+            <a class="btn btn-outline-light btn-icon" href="/accounts/reports/predictions/"><i class="bi bi-graph-up-arrow"></i>Reports</a>
+        </div>
     </div>
-    <a class="btn btn-outline-secondary" href="/">Dashboard</a>
-</div>
+</section>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <form method="post" class="row g-2 align-items-end">
-            {% csrf_token %}
-            <div class="col-md-9">
-                <label class="form-label" for="city">City</label>
-                <input class="form-control" id="city" name="city" value="{{ city }}" required>
+<section class="row g-3 align-items-stretch">
+    <div class="col-lg-5">
+        <div class="card h-100 fade-up">
+            <div class="card-header">
+                <h2 class="card-title"><i class="bi bi-sliders me-2 text-success"></i>Prediction Input</h2>
             </div>
-            <div class="col-md-3 d-grid">
-                <button class="btn btn-primary" type="submit">Predict</button>
-            </div>
-        </form>
-    </div>
-</div>
+            <div class="card-body">
+                <form method="post" class="d-grid gap-3">
+                    {% csrf_token %}
+                    <div>
+                        <label class="form-label" for="city">City</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-success"></i></span>
+                            <input class="form-control border-start-0" id="city" name="city" value="{{ city }}" required>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-lg btn-icon" type="submit"><i class="bi bi-magic"></i>Predict Weather</button>
+                </form>
 
-{% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-{% endif %}
+                {% if error %}
+                    <div class="alert alert-danger mt-3 mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                    </div>
+                {% endif %}
 
-{% if prediction %}
-    <div class="row g-3 mb-3">
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="metric-label">Predicted Temperature</div>
-                    <div class="metric-lg">{{ prediction.predicted_temperature|floatformat:2 }}°C</div>
-                    <div class="text-muted">For {{ prediction.input_reading.city }}</div>
+                <div class="row g-2 mt-3">
+                    <div class="col-6">
+                        <div class="soft-stat">
+                            <i class="bi bi-database-check text-success fs-4"></i>
+                            <div>
+                                <strong class="d-block">Saved input</strong>
+                                <span class="muted-label small">Latest reading</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="soft-stat">
+                            <i class="bi bi-cpu text-primary fs-4"></i>
+                            <div>
+                                <strong class="d-block">ML output</strong>
+                                <span class="muted-label small">Stored forecast</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="metric-label">Predicted Rainfall</div>
-                    <div class="metric-lg">{{ prediction.predicted_precipitation|floatformat:3 }}mm</div>
-                    <div class="text-muted">{{ prediction.predicted_at|date:"M d, H:i" }}</div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <div class="card">
-        <div class="card-header"><h2 class="card-title">Prediction Details</h2></div>
-        <div class="card-body table-responsive p-0">
-            <table class="table table-striped mb-0">
-                <tbody>
-                <tr><th>Prediction ID</th><td>{{ prediction.id }}</td></tr>
-                <tr><th>Input Reading ID</th><td>{{ prediction.input_reading_id }}</td></tr>
-                <tr><th>Input Reading Time</th><td>{{ prediction.input_reading.fetched_at|date:"M d, H:i" }}</td></tr>
-                <tr><th>Latest Reading Temperature</th><td>{{ prediction.input_reading.temperature|floatformat:2 }}°C</td></tr>
-                <tr><th>Latest Reading Humidity</th><td>{{ prediction.input_reading.humidity|floatformat:0 }}%</td></tr>
-                <tr><th>Model</th><td>{{ prediction.model_used }}</td></tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="col-lg-7">
+        {% if prediction %}
+            <div class="row g-3 mb-3">
+                <div class="col-md-6 fade-up">
+                    <div class="card metric-card h-100" style="--metric-color:#ef6f61">
+                        <div class="card-body">
+                            <span class="metric-icon"><i class="bi bi-thermometer-sun"></i></span>
+                            <div class="metric-label mt-3">Predicted Temperature</div>
+                            <div class="metric-lg" data-countup="{{ prediction.predicted_temperature|floatformat:2 }}" data-suffix="&deg;C" data-decimals="2">{{ prediction.predicted_temperature|floatformat:2 }}&deg;C</div>
+                            <div class="muted-label">For {{ prediction.input_reading.city }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 fade-up">
+                    <div class="card metric-card h-100" style="--metric-color:#3478f6">
+                        <div class="card-body">
+                            <span class="metric-icon"><i class="bi bi-cloud-rain-heavy"></i></span>
+                            <div class="metric-label mt-3">Predicted Rainfall</div>
+                            <div class="metric-lg" data-countup="{{ prediction.predicted_precipitation|floatformat:3 }}" data-suffix="mm" data-decimals="3">{{ prediction.predicted_precipitation|floatformat:3 }}mm</div>
+                            <div class="muted-label">{{ prediction.predicted_at|date:"M d, H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card fade-up">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="bi bi-card-checklist me-2 text-success"></i>Prediction Details</h2>
+                    <span class="status-pill"><i class="bi bi-lightning-charge"></i>{{ prediction.model_used }}</span>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover">
+                        <tbody>
+                        <tr><th>Prediction ID</th><td>#{{ prediction.id }}</td></tr>
+                        <tr><th>Input Reading ID</th><td>#{{ prediction.input_reading_id }}</td></tr>
+                        <tr><th>Input Reading Time</th><td>{{ prediction.input_reading.fetched_at|date:"M d, H:i" }}</td></tr>
+                        <tr><th>Latest Reading Temperature</th><td>{{ prediction.input_reading.temperature|floatformat:2 }}&deg;C</td></tr>
+                        <tr><th>Latest Reading Humidity</th><td>{{ prediction.input_reading.humidity|floatformat:0 }}%</td></tr>
+                        <tr><th>Model</th><td>{{ prediction.model_used }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="card h-100 fade-up">
+                <div class="card-body d-flex flex-column justify-content-center text-center py-5">
+                    <i class="bi bi-cloud-sun display-3 text-success mb-3"></i>
+                    <h2 class="h4 fw-bold">Ready for a new forecast</h2>
+                    <p class="muted-label mx-auto mb-0" style="max-width: 520px;">Choose a city, run the model, and the generated forecast will appear here with its source reading and model details.</p>
+                </div>
+            </div>
+        {% endif %}
     </div>
-{% endif %}
+</section>
 {% endblock %}

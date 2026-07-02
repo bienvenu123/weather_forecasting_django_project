@@ -3,121 +3,161 @@
 {% block title %}Dashboard | Kigali Weather{% endblock %}
 
 {% block content %}
-<section class="content-header px-0">
-    <div class="container-fluid px-0">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-            <div>
-                <h1 class="m-0">Kigali Weather Dashboard</h1>
-                <p class="text-muted mb-0">Live readings, ML predictions, and recent history</p>
+<section class="page-hero fade-up">
+    <div class="hero-inner d-flex flex-column justify-content-between gap-4">
+        <div>
+            <span class="eyebrow"><i class="bi bi-broadcast-pin"></i>Live Kigali operations</span>
+            <h1 class="hero-title">Kigali Weather Dashboard</h1>
+            <p class="hero-copy">Monitor live readings, compare recent patterns, and launch ML predictions from a single professional control surface.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex flex-wrap gap-2">
+                <span class="status-pill bg-white text-dark"><i class="bi bi-geo-alt-fill text-success"></i>{{ city }}</span>
+                {% if latest_reading %}
+                    <span class="status-pill bg-white text-dark"><i class="bi bi-clock-history text-success"></i>{{ latest_reading.fetched_at|date:"M d, H:i" }}</span>
+                {% endif %}
             </div>
-            <div class="btn-group">
-                <a class="btn btn-primary" href="/predictor/">Generate Prediction</a>
-                <a class="btn btn-outline-secondary" href="/api/">API</a>
+            <div class="hero-actions">
+                <a class="btn btn-light btn-icon" href="/predictor/"><i class="bi bi-stars"></i>Generate Prediction</a>
+                <a class="btn btn-outline-light btn-icon" href="/api/"><i class="bi bi-braces"></i>Open API</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="content px-0 mt-3">
-    <div class="container-fluid px-0">
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="metric-label">Current Temperature</div>
-                        <div class="metric">{% if latest_reading %}{{ latest_reading.temperature|floatformat:1 }}°C{% else %}No data{% endif %}</div>
-                        {% if latest_reading %}<div class="text-muted">{{ latest_reading.weather_desc }}</div>{% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="metric-label">Humidity</div>
-                        <div class="metric">{% if latest_reading %}{{ latest_reading.humidity|floatformat:0 }}%{% else %}No data{% endif %}</div>
-                        {% if latest_reading %}<div class="text-muted">Clouds {{ latest_reading.cloud_cover|floatformat:0 }}%</div>{% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="metric-label">Predicted Temperature</div>
-                        <div class="metric">{% if latest_prediction %}{{ latest_prediction.predicted_temperature|floatformat:1 }}°C{% else %}No prediction{% endif %}</div>
-                        {% if latest_prediction %}<div class="text-muted">Next forecast</div>{% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="metric-label">Predicted Rainfall</div>
-                        <div class="metric">{% if latest_prediction %}{{ latest_prediction.predicted_precipitation|floatformat:3 }}mm{% else %}No prediction{% endif %}</div>
-                        {% if latest_prediction %}<div class="text-muted">{{ latest_prediction.predicted_at|date:"M d, H:i" }}</div>{% endif %}
-                    </div>
-                </div>
+<section class="row g-3 mb-3">
+    <div class="col-sm-6 col-xl-3 fade-up">
+        <div class="card metric-card h-100" style="--metric-color:#ef6f61">
+            <div class="card-body">
+                <span class="metric-icon"><i class="bi bi-thermometer-sun"></i></span>
+                <div class="metric-label mt-3">Current Temperature</div>
+                {% if latest_reading %}
+                    <div class="metric" data-countup="{{ latest_reading.temperature|floatformat:1 }}" data-suffix="&deg;C" data-decimals="1">{{ latest_reading.temperature|floatformat:1 }}&deg;C</div>
+                    <div class="muted-label">{{ latest_reading.weather_desc }}</div>
+                {% else %}
+                    <div class="metric">No data</div>
+                    <div class="muted-label">Fetch readings to populate this panel</div>
+                {% endif %}
             </div>
         </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title">Temperature Trend</h3></div>
-                    <div class="card-body"><canvas id="temperatureChart"></canvas></div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title">Humidity Trend</h3></div>
-                    <div class="card-body"><canvas id="humidityChart"></canvas></div>
-                </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 fade-up">
+        <div class="card metric-card h-100" style="--metric-color:#3478f6">
+            <div class="card-body">
+                <span class="metric-icon"><i class="bi bi-droplet-half"></i></span>
+                <div class="metric-label mt-3">Humidity</div>
+                {% if latest_reading %}
+                    <div class="metric" data-countup="{{ latest_reading.humidity|floatformat:0 }}" data-suffix="%" data-decimals="0">{{ latest_reading.humidity|floatformat:0 }}%</div>
+                    <div class="muted-label">Cloud cover {{ latest_reading.cloud_cover|floatformat:0 }}%</div>
+                {% else %}
+                    <div class="metric">No data</div>
+                    <div class="muted-label">Humidity feed unavailable</div>
+                {% endif %}
             </div>
         </div>
-
-        <div class="row g-3">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title">Recent Readings</h3></div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-striped mb-0">
-                            <thead><tr><th>Time</th><th>Temp</th><th>Humidity</th><th>Condition</th></tr></thead>
-                            <tbody>
-                            {% for reading in recent_readings %}
-                                <tr>
-                                    <td>{{ reading.fetched_at|date:"M d, H:i" }}</td>
-                                    <td>{{ reading.temperature|floatformat:1 }}°C</td>
-                                    <td>{{ reading.humidity|floatformat:0 }}%</td>
-                                    <td>{{ reading.weather_desc }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr><td colspan="4">No readings yet.</td></tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 fade-up">
+        <div class="card metric-card h-100" style="--metric-color:#0f9f7a">
+            <div class="card-body">
+                <span class="metric-icon"><i class="bi bi-activity"></i></span>
+                <div class="metric-label mt-3">Predicted Temperature</div>
+                {% if latest_prediction %}
+                    <div class="metric" data-countup="{{ latest_prediction.predicted_temperature|floatformat:1 }}" data-suffix="&deg;C" data-decimals="1">{{ latest_prediction.predicted_temperature|floatformat:1 }}&deg;C</div>
+                    <div class="muted-label">Next forecast output</div>
+                {% else %}
+                    <div class="metric">No prediction</div>
+                    <div class="muted-label">Generate a model forecast</div>
+                {% endif %}
             </div>
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title">Recent Predictions</h3></div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-striped mb-0">
-                            <thead><tr><th>Time</th><th>Temp</th><th>Rain</th><th>Model</th></tr></thead>
-                            <tbody>
-                            {% for prediction in recent_predictions %}
-                                <tr>
-                                    <td>{{ prediction.predicted_at|date:"M d, H:i" }}</td>
-                                    <td>{{ prediction.predicted_temperature|floatformat:1 }}°C</td>
-                                    <td>{{ prediction.predicted_precipitation|floatformat:3 }}mm</td>
-                                    <td>{{ prediction.model_used }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr><td colspan="4">No predictions yet.</td></tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3 fade-up">
+        <div class="card metric-card h-100" style="--metric-color:#f2b84b">
+            <div class="card-body">
+                <span class="metric-icon"><i class="bi bi-cloud-rain-heavy"></i></span>
+                <div class="metric-label mt-3">Predicted Rainfall</div>
+                {% if latest_prediction %}
+                    <div class="metric" data-countup="{{ latest_prediction.predicted_precipitation|floatformat:3 }}" data-suffix="mm" data-decimals="3">{{ latest_prediction.predicted_precipitation|floatformat:3 }}mm</div>
+                    <div class="muted-label">{{ latest_prediction.predicted_at|date:"M d, H:i" }}</div>
+                {% else %}
+                    <div class="metric">No prediction</div>
+                    <div class="muted-label">Rain estimate pending</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-3">
+    <div class="col-lg-8">
+        <div class="card h-100 fade-up">
+            <div class="card-header">
+                <h2 class="card-title"><i class="bi bi-graph-up me-2 text-success"></i>Temperature Trend</h2>
+                <span class="status-pill"><i class="bi bi-clock"></i>Latest 12</span>
+            </div>
+            <div class="card-body">
+                <div class="chart-shell"><canvas id="temperatureChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100 fade-up">
+            <div class="card-header">
+                <h2 class="card-title"><i class="bi bi-moisture me-2 text-primary"></i>Humidity Trend</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-shell compact"><canvas id="humidityChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3">
+    <div class="col-xl-6">
+        <div class="card fade-up">
+            <div class="card-header">
+                <h2 class="card-title"><i class="bi bi-list-check me-2 text-success"></i>Recent Readings</h2>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover">
+                    <thead><tr><th>Time</th><th>Temp</th><th>Humidity</th><th>Condition</th></tr></thead>
+                    <tbody>
+                    {% for reading in recent_readings %}
+                        <tr>
+                            <td>{{ reading.fetched_at|date:"M d, H:i" }}</td>
+                            <td><strong>{{ reading.temperature|floatformat:1 }}&deg;C</strong></td>
+                            <td>{{ reading.humidity|floatformat:0 }}%</td>
+                            <td><span class="status-pill"><i class="bi bi-cloud-sun"></i>{{ reading.weather_desc }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-center py-4 muted-label">No readings yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card fade-up">
+            <div class="card-header">
+                <h2 class="card-title"><i class="bi bi-cpu me-2 text-success"></i>Recent Predictions</h2>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover">
+                    <thead><tr><th>Time</th><th>Temp</th><th>Rain</th><th>Model</th></tr></thead>
+                    <tbody>
+                    {% for prediction in recent_predictions %}
+                        <tr>
+                            <td>{{ prediction.predicted_at|date:"M d, H:i" }}</td>
+                            <td><strong>{{ prediction.predicted_temperature|floatformat:1 }}&deg;C</strong></td>
+                            <td>{{ prediction.predicted_precipitation|floatformat:3 }}mm</td>
+                            <td><span class="status-pill"><i class="bi bi-lightning-charge"></i>{{ prediction.model_used }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-center py-4 muted-label">No predictions yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -135,20 +175,44 @@
     const temperatures = JSON.parse(document.getElementById("temperature-data").textContent);
     const humidity = JSON.parse(document.getElementById("humidity-data").textContent);
 
-    new Chart(document.getElementById("temperatureChart"), {
+    Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+    Chart.defaults.color = "#657573";
+
+    const makeGradient = (canvas, start, end) => {
+        const gradient = canvas.getContext("2d").createLinearGradient(0, 0, 0, 320);
+        gradient.addColorStop(0, start);
+        gradient.addColorStop(1, end);
+        return gradient;
+    };
+
+    const tempCanvas = document.getElementById("temperatureChart");
+    new Chart(tempCanvas, {
         type: "line",
         data: {
             labels,
             datasets: [{
-                label: "Temperature °C",
+                label: "Temperature &deg;C",
                 data: temperatures,
-                borderColor: "#0d6efd",
-                backgroundColor: "rgba(13, 110, 253, .12)",
+                borderColor: "#ef6f61",
+                backgroundColor: makeGradient(tempCanvas, "rgba(239,111,97,.28)", "rgba(239,111,97,0)"),
                 fill: true,
-                tension: .35
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: "#ef6f61",
+                pointHoverRadius: 7,
+                pointRadius: 4,
+                tension: .42
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: "index" },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: "rgba(20,32,31,.08)" } }
+            }
+        }
     });
 
     new Chart(document.getElementById("humidityChart"), {
@@ -158,10 +222,20 @@
             datasets: [{
                 label: "Humidity %",
                 data: humidity,
-                backgroundColor: "#20c997"
+                backgroundColor: "rgba(52,120,246,.76)",
+                borderRadius: 8,
+                borderSkipped: false
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: "rgba(20,32,31,.08)" }, suggestedMax: 100 }
+            }
+        }
     });
 </script>
 {% endblock %}

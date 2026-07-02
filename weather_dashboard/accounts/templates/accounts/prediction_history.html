@@ -3,20 +3,30 @@
 {% block title %}Reports | Kigali Weather{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <div>
-        <h1 class="mb-1">Prediction History</h1>
-        <p class="text-muted mb-0">{{ city }}</p>
+<section class="page-hero fade-up">
+    <div class="hero-inner d-flex flex-column justify-content-between gap-4">
+        <div>
+            <span class="eyebrow"><i class="bi bi-graph-up-arrow"></i>Prediction archive</span>
+            <h1 class="hero-title">Prediction History</h1>
+            <p class="hero-copy">Review saved forecasts, compare model outputs, and export the latest reporting data for analysis.</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <span class="status-pill bg-white text-dark"><i class="bi bi-geo-alt-fill text-success"></i>{{ city }}</span>
+            <div class="hero-actions">
+                <a class="btn btn-light btn-icon" href="/"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+                <a class="btn btn-outline-light btn-icon" href="{% url 'export-predictions-csv' %}"><i class="bi bi-download"></i>Export CSV</a>
+            </div>
+        </div>
     </div>
-    <div class="btn-group">
-        <a class="btn btn-outline-secondary" href="/">Dashboard</a>
-        <a class="btn btn-primary" href="{% url 'export-predictions-csv' %}">Export CSV</a>
-    </div>
-</div>
+</section>
 
-<div class="card">
+<section class="card fade-up">
+    <div class="card-header">
+        <h2 class="card-title"><i class="bi bi-table me-2 text-success"></i>Saved Forecasts</h2>
+        <span class="status-pill"><i class="bi bi-database"></i>Latest 100</span>
+    </div>
     <div class="card-body table-responsive p-0">
-        <table class="table table-striped mb-0">
+        <table class="table table-hover">
             <thead>
             <tr>
                 <th>Predicted At</th>
@@ -31,17 +41,17 @@
             {% for prediction in predictions %}
                 <tr>
                     <td>{{ prediction.predicted_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ prediction.input_reading.city }}</td>
-                    <td>{{ prediction.predicted_temperature|floatformat:2 }}°C</td>
+                    <td><span class="status-pill"><i class="bi bi-geo-alt"></i>{{ prediction.input_reading.city }}</span></td>
+                    <td><strong>{{ prediction.predicted_temperature|floatformat:2 }}&deg;C</strong></td>
                     <td>{{ prediction.predicted_precipitation|floatformat:3 }}mm</td>
-                    <td>{{ prediction.model_used }}</td>
+                    <td><span class="status-pill"><i class="bi bi-cpu"></i>{{ prediction.model_used }}</span></td>
                     <td>{{ prediction.input_reading.fetched_at|date:"Y-m-d H:i" }}</td>
                 </tr>
             {% empty %}
-                <tr><td colspan="6">No predictions saved yet.</td></tr>
+                <tr><td colspan="6" class="text-center py-5 muted-label">No predictions saved yet.</td></tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
+</section>
 {% endblock %}
