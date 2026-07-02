@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Predictor | Kigali Weather{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="mb-1">Generate Prediction</h1>
+        <p class="text-muted mb-0">Predict next weather values from the latest saved reading.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="/">Dashboard</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="post" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-9">
+                <label class="form-label" for="city">City</label>
+                <input class="form-control" id="city" name="city" value="{{ city }}" required>
+            </div>
+            <div class="col-md-3 d-grid">
+                <button class="btn btn-primary" type="submit">Predict</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if prediction %}
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="metric-label">Predicted Temperature</div>
+                    <div class="metric-lg">{{ prediction.predicted_temperature|floatformat:2 }}°C</div>
+                    <div class="text-muted">For {{ prediction.input_reading.city }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="metric-label">Predicted Rainfall</div>
+                    <div class="metric-lg">{{ prediction.predicted_precipitation|floatformat:3 }}mm</div>
+                    <div class="text-muted">{{ prediction.predicted_at|date:"M d, H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2 class="card-title">Prediction Details</h2></div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-striped mb-0">
+                <tbody>
+                <tr><th>Prediction ID</th><td>{{ prediction.id }}</td></tr>
+                <tr><th>Input Reading ID</th><td>{{ prediction.input_reading_id }}</td></tr>
+                <tr><th>Input Reading Time</th><td>{{ prediction.input_reading.fetched_at|date:"M d, H:i" }}</td></tr>
+                <tr><th>Latest Reading Temperature</th><td>{{ prediction.input_reading.temperature|floatformat:2 }}°C</td></tr>
+                <tr><th>Latest Reading Humidity</th><td>{{ prediction.input_reading.humidity|floatformat:0 }}%</td></tr>
+                <tr><th>Model</th><td>{{ prediction.model_used }}</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

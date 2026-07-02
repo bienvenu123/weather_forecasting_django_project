@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | Kigali Weather{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="mb-1">Prediction History</h1>
+        <p class="text-muted mb-0">{{ city }}</p>
+    </div>
+    <div class="btn-group">
+        <a class="btn btn-outline-secondary" href="/">Dashboard</a>
+        <a class="btn btn-primary" href="{% url 'export-predictions-csv' %}">Export CSV</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+            <tr>
+                <th>Predicted At</th>
+                <th>City</th>
+                <th>Temperature</th>
+                <th>Precipitation</th>
+                <th>Model</th>
+                <th>Input Reading</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for prediction in predictions %}
+                <tr>
+                    <td>{{ prediction.predicted_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ prediction.input_reading.city }}</td>
+                    <td>{{ prediction.predicted_temperature|floatformat:2 }}°C</td>
+                    <td>{{ prediction.predicted_precipitation|floatformat:3 }}mm</td>
+                    <td>{{ prediction.model_used }}</td>
+                    <td>{{ prediction.input_reading.fetched_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">No predictions saved yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

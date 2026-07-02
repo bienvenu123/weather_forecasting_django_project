@@ -1,0 +1,77 @@
+{
+  "info": {
+    "name": "Weather Dashboard API",
+    "description": "Postman collection for weather readings, saved predictions, and ML prediction generation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "List Weather Readings",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/weather-readings/?city=Kigali&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "weather-readings", ""],
+          "query": [
+            { "key": "city", "value": "Kigali" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Saved Predictions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/predictions/?city=Kigali&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "predictions", ""],
+          "query": [
+            { "key": "city", "value": "Kigali" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Generate And Save Prediction",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"city\": \"Kigali\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/generate-prediction/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "generate-prediction", ""]
+        }
+      }
+    },
+    {
+      "name": "Predictor JSON Endpoint",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/predictor/predict/?city=Kigali",
+          "host": ["{{base_url}}"],
+          "path": ["predictor", "predict", ""],
+          "query": [
+            { "key": "city", "value": "Kigali" }
+          ]
+        }
+      }
+    }
+  ]
+}
